@@ -1,0 +1,38 @@
+# depslib dependency file v1.0
+1542437434 source:c:\users\leofl\desktop\b-tree\btree.c
+	"btree.h"
+	"btree_util.h"
+
+1542430249 c:\users\leofl\desktop\b-tree\btree.h
+	<stdio.h>
+	<stdlib.h>
+	<assert.h>
+	"util.h"
+	"btree_util.h"
+	"btree_tools.h"
+
+1542403748 c:\users\leofl\desktop\b-tree\util.h
+
+1542437705 c:\users\leofl\desktop\b-tree\btree_util.h
+	<stdio.h>
+	<stdlib.h>
+	<assert.h>
+	"util.h"
+
+1542403747 c:\users\leofl\desktop\b-tree\btree_tools.h
+	<stdio.h>
+	"btree.h"
+
+1542431290 source:c:\users\leofl\desktop\b-tree\btree_tools.c
+	"btree_tools.h"
+
+1542430294 source:c:\users\leofl\desktop\b-tree\btree_util.c
+	"btree_util.h"
+
+1542431184 source:c:\users\leofl\desktop\b-tree\main.c
+	<stdio.h>
+	<string.h>
+	<unistd.h>
+	"btree.h"
+	"btree_tools.h"
+
