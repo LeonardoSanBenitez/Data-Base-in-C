@@ -3,6 +3,7 @@
 	DC - UFSCar - São Carlos - 2015
  */
 #include "btree_util.h"
+#define DEBUG
 
 node_position _node_position_new(node_t *node, int index) {
 	// Apenas retorna um node_position com os valores informados
@@ -11,7 +12,7 @@ node_position _node_position_new(node_t *node, int index) {
 }
 
 pair_t* _pair_new(int key, void *value) {
-	pair_t *p = malloc(sizeof(pair_t));
+	pair_t *p = malloc(sizeof(pair_t)); //SEGMENTATION FAULT NESSA LINHA, NA 3º INSERÇÃO
 	assert(p != NULL);
 
 	#ifdef DEBUG
@@ -30,6 +31,13 @@ pair_t* _pair_copy(pair_t *p) {
 	return new;
 }
 
+void* pair_get_value (pair_t* p){
+    return p->value;
+}
+void* node_get_value (node_position pos){
+    return pair_get_value(pos.node->keys[pos.index]);
+}
+
 node_t* _node_new(int order, bool is_leaf) {
 	node_t *n = malloc(sizeof(node_t));
 	assert(n != NULL);
@@ -46,10 +54,23 @@ node_t* _node_new(int order, bool is_leaf) {
 	return n;
 }
 
-//FIND KEY
+inline bool _node_find_key(node_t *node, int key, int *pos) {
+	*pos = 0;
+
+	// Encontra a posição cuja chave é imediatamente maior ou igual à key
+	// (respeitando o número de chaves ativas no nó)
+	while ((*pos) < node->n_keys && key > node->keys[(*pos)]->key) {
+		(*pos)++;
+	}
+
+	// A chave foi encontrada apenas se a posição (*pos)
+	// pertence ao nó e se a chave está nessa posição
+	return (*pos) < node->n_keys && key == node->keys[(*pos)]->key;
+}
+
 
 void _node_deslocate_keys_up(node_t *to, node_t *from, int beg, int end, int padding_to, int padding_from) {
-	#if DEBUG
+	#ifdef DEBUG
 	printf("_node_deslocate_keys_up: ");
 	#endif
 
@@ -57,67 +78,90 @@ void _node_deslocate_keys_up(node_t *to, node_t *from, int beg, int end, int pad
 	for (j = beg; j < end; j++) {
 		to->keys[j + padding_to] = from->keys[j + padding_from];
 
-	    #if DEBUG
+	    #ifdef DEBUG
 		printf("%d, ", to->keys[j + padding_to]->key);
 	    #endif
 	}
 
-    #if DEBUG
+    #ifdef DEBUG
 	printf("\n");
     #endif
 }
 
 void _node_deslocate_keys_down(node_t *to, node_t *from, int beg, int end, int padding_to, int padding_from) {
-	#if DEBUG
+	#ifdef DEBUG
 	printf("_node_deslocate_keys_down: ");
 	#endif
 
 	int j;
 	for (j = beg; j > end; j--) {
 		to->keys[j + padding_to] = from->keys[j + padding_from];
-	    #if DEBUG
+	    #ifdef DEBUG
 		printf("%d, ", to->keys[j + padding_to]->key);
 	    #endif
 	}
 
-    #if DEBUG
+    #ifdef DEBUG
 	printf("\n");
     #endif
 }
 
 void _node_deslocate_children_up(node_t *to, node_t *from, int beg, int end, int padding_to, int padding_from) {
 	int j;
-	#if DEBUG
+	#ifdef DEBUG
 	printf("_node_deslocate_children_up: ");
 	#endif
 	for (j = beg; j < end; j++) {
 		to->children[j + padding_to] = from->children[j + padding_from];
-	    #if DEBUG
+	    #ifdef DEBUG
 		printf("%d, ", j + padding_from);
 	    #endif
 	}
 
-    #if DEBUG
+    #ifdef DEBUG
 	printf("\n");
     #endif
 }
 
 void _node_deslocate_children_down(node_t *to, node_t *from, int beg, int end, int padding_to, int padding_from) {
-	#if DEBUG
+	#ifdef DEBUG
 	printf("_node_deslocate_children_down: ");
 	#endif
 
 	int j;
 	for (j = beg; j > end; j--) {
 		to->children[j + padding_to] = from->children[j + padding_from];
-	    #if DEBUG
+	    #ifdef DEBUG
 		printf("%d, ", j + padding_from);
 	    #endif
 	}
 
-    #if DEBUG
+    #ifdef DEBUG
 	printf("\n");
     #endif
+}
+
+
+node_position _node_find_max(node_t *node) {
+	assert(node != NULL);
+
+	if (node->is_leaf) {
+		return _node_position_new(node, node->n_keys-1);
+	}
+	else {
+		return _node_find_max(node->children[node->n_keys]);
+	}
+}
+
+node_position _node_find_min(node_t *node) {
+	assert(node != NULL);
+
+	if (node->is_leaf) {
+		return _node_position_new(node, 0);
+	}
+	else {
+		return _node_find_max(node->children[0]);
+	}
 }
 
 void _node_delete(node_t *node) {

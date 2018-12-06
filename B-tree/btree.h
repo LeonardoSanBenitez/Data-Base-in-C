@@ -5,15 +5,15 @@
 #ifndef B_TREE_H
 #define B_TREE_H
 
-#ifdef DEBUG
-#include <stdio.h>
-#endif
-
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #include "util.h"
 #include "btree_util.h"
+
+//#define DEBUG
 
 
 /*
@@ -22,16 +22,17 @@
    root:   ponteiro para o nó raiz da B-Tree (possui [2, 2*order] filhos)
  */
 typedef struct btree_t {
+    char name[15];
 	int order;
 	node_t *root;
 } BTree;
+//TODO: mudar o nome dessa classe
 
-#include "btree_tools.h"
-
+char* btree_get_name (BTree* bt);
 /*
     Aloca e retorna uma B-Tree na Heap de ordem order
  */
-BTree* btree_new(int order);
+BTree* btree_new(char* name, int order);
 /*
     Inicializa uma B-Tree de ordem order.
     Utilizada como sub-procedimento na função btree_new().
@@ -103,10 +104,21 @@ node_position _btree_remove_node(node_t *node, int key, int order);
 /*
     Retorna o node_position da maior key em node
  */
-inline node_position _node_find_max(node_t *node);
+node_position _node_find_max(node_t *node);
 /*
     Retorna o node_position da menor key em node
  */
-inline node_position _node_find_min(node_t *node);
+node_position _node_find_min(node_t *node);
+
+/*
+    Executa uma DFS em node, imprimindo as chaves associadas à ele.
+    Usa o parâmetro level no print dos dados do nó.
+ */
+void _btree_dfs_node(node_t *node, int level);
+/*
+    Executa uma DFS na B-Tree, imprimindo dados associados aos seus nós
+    (em especial suas chaves) em ordem POSFIXA.
+ */
+void btree_dfs(BTree *bt);
 
 #endif

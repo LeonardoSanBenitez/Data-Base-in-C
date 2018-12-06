@@ -5,14 +5,14 @@
 #ifndef B_TREE_UTIL_H
 #define B_TREE_UTIL_H
 
-#ifdef DEBUG
-#include <stdio.h>
-#endif
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 #include "util.h"
+
+#define DEBUG
 
 	/*
 	   pair <int key, void* value>
@@ -109,5 +109,7 @@
 		a chaves e os nós-filhos associados à node.
 	 */
 	void _node_delete(node_t *node);
+    void* pair_get_value (pair_t* p);
+	void* node_get_value (node_position pos);
 
 	#endif

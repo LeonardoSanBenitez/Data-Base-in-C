@@ -31,15 +31,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="B-tree.cbp" />
 		<Unit filename="btree.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="btree.h" />
-		<Unit filename="btree_tools.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="btree_tools.h" />
 		<Unit filename="btree_util.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -47,6 +42,10 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="sql_processor.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sql_processor.h" />
 		<Unit filename="util.h" />
 		<Extensions>
 			<code_completion />
