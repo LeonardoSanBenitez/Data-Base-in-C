@@ -53,7 +53,7 @@ dd
 Documentação do bytecode:
 Se op = CREATE, reg2=tname;
 Se op = INSERT, reg2=tname, reg3=nome,  reg4=age, reg5=weight;
-Se op = SELECT, reg2=tname,,            reg4=id;
+Se op = SELECT, reg2=tname,,            reg4=id; (if select *, id=-1)
 Se op = DELETE, reg2=tname,,            reg4=id;
 TODO: change reg3 to reg2
 *****/

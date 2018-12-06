@@ -12,6 +12,7 @@ busca se da unicamente pelo id serial
 
 #include "btree.h"
 #include "sql_processor.h"
+#include "pager.h"
 
 
 #define MSG_LEN 100
@@ -42,42 +43,6 @@ int SQL_create (sql_bytecode_t* bytecode, BTree** Tcursor){
     }
 }
 
-/* page.h */
-typedef struct {
-    int row_id;
-    char name [10];
-    int age;
-    float weight;
- } page_t;
-
-page_t* pageNew (){
-    page_t* page;
-    page = malloc(sizeof(page_t)); //that will be stored in HARD DISK
-    assert(page != NULL);
-    return page;
-}
-void pageSetRowId (page_t* page, int key){
-    page->row_id = key;
-}
-void pageSetName (page_t* page, char* name){
-    strcpy(page->name, name);
-}
-void pageSetAge (page_t* page, int* age){
-    page->age = *age;
-}
-void pageSetWeight (page_t* page, float* weight){
-    page->weight = *weight;
-    ;
-}
-char* pageGetName (page_t* page){
-    return page->name;
-}
-int pageGetAge (page_t* page){
-    return page->age;
-}
-float pageGetWeight (page_t* page){
-    return page->weight;
-}
 int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor){
     if (Tcursor == NULL){
         printf ("SQL_insert: invalid table\n");
@@ -102,8 +67,12 @@ int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor){
                 \t %s, \n\
                 \t %d, \n\
                 \t %f, \n\
-            );\n", btree_get_name(Tcursor), pageGetName (page), pageGetAge (page), pageGetWeight (page));
-            //TODO: nao consigo pegar o nome. TRAVE DEPOSI DE INSERIR 3
+            );\n",
+            btree_get_name(Tcursor),
+            pageGetName (page),
+            pageGetAge (page),
+            pageGetWeight (page)
+    );
     #endif
     pos = btree_insert(Tcursor, key, page);
     bytecode_free(bytecode);
@@ -121,21 +90,25 @@ int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor){
 int SQL_select(sql_bytecode_t* bytecode, BTree* Tcursor){
 	node_position pos;
 
-    pos = btree_find(Tcursor, 0);//*(int*)bytecode->reg4
+    pos = btree_find(Tcursor, *(int*)bytecode->reg4);
     page_t* value;
-    value = node_get_value(pos);
+    page = node_get_value(pos);
     //TODO: verificar se a linha existe
     printf(" returned row %d: %s, %d, %f\n",
-                 value->row_id, value->name, value->age, value->weight);
+            pageGetRowId(page),
+            pageGetName(page),
+            pageGetAge(page),
+            pageGetWeight(page)
+    );
 	return 0;
 }
 
 
-    BTree *Tcursor = NULL; // será utilizado na aplicação inteira para armazenar o DB
 
 int main() {
 	char input_buffer [MAX_INPUT];
     sql_bytecode_t* bytecode;
+    BTree *Tcursor; // será utilizado na aplicação inteira para armazenar o DB
 
 
     printf("BenitezSQL Command Line Interface\n");
