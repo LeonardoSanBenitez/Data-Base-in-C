@@ -42,6 +42,10 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="pager.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pager.h" />
 		<Unit filename="sql_processor.c">
 			<Option compilerVar="CC" />
 		</Unit>

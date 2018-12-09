@@ -12,7 +12,6 @@
 
 #include "util.h"
 
-#define DEBUG
 
 	/*
 	   pair <int key, void* value>
@@ -110,6 +109,7 @@
 	 */
 	void _node_delete(node_t *node);
     void* pair_get_value (pair_t* p);
+    int pair_get_key (pair_t* p);
 	void* node_get_value (node_position pos);
 
 	#endif

@@ -18,8 +18,51 @@ busca se da unicamente pelo id serial
 #define MSG_LEN 100
 #define MAX_INPUT 128
 #define MIN_DEGREE 2
-
 #define INPUT_ECO
+
+int SQL_create (sql_bytecode_t* bytecode, BTree** Tcursor);
+int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor);
+int SQL_select(sql_bytecode_t* bytecode, BTree* Tcursor);
+int SQL_delete(sql_bytecode_t* bytecode, BTree* Tcursor);
+int SQL_drop (sql_bytecode_t* bytecode, BTree* Tcursor);
+
+int main() {
+	char input_buffer [MAX_INPUT];
+    sql_bytecode_t* bytecode;
+    BTree *Tcursor; // será utilizado na aplicação inteira para armazenar o DB
+
+    printf("BenitezSQL Command Line Interface\n");
+	printf("---------------------------------\n\n");
+
+    /* BenitezSQL Virtual Machine */
+	while (1) {
+	    printf("SQL> ");
+	    fgets (input_buffer, MAX_INPUT, stdin);
+	    bytecode = SQL_processor(input_buffer);
+		switch (bytecode->op) {
+		case CREATE:
+			SQL_create(bytecode, &Tcursor);
+			break;
+		case INSERT:
+			SQL_insert(bytecode, Tcursor);
+			break;
+		case SELECT:
+            SQL_select(bytecode, Tcursor);
+            break;
+		case DELETE:
+            SQL_delete(bytecode, Tcursor);
+            break;
+        case ERROR:
+            printf ("Sorry, invalid SQL\n\n");
+            break;
+        case DROP:
+            SQL_drop (bytecode, Tcursor);
+            printf("Exiting BenitezSQL\n\n");
+            return 0;
+
+		}
+	}
+}
 
 
 int SQL_create (sql_bytecode_t* bytecode, BTree** Tcursor){
@@ -29,10 +72,10 @@ int SQL_create (sql_bytecode_t* bytecode, BTree** Tcursor){
             \t varchar[10] name,           \n\
             \t integer age,                \n\
             \t real weight                 \n\
-    )\n", (char*)bytecode->reg3);
+    )\n\n", (char*)getReg3(bytecode));
     #endif // INPUT_ECO
 
-    *Tcursor = btree_new(bytecode->reg3, MIN_DEGREE);
+    *Tcursor = btree_new(getReg3(bytecode), MIN_DEGREE);
     bytecode_free(bytecode);
     if (Tcursor != NULL){
         printf("sucess: 1 table affected (%p)\n\n", Tcursor);
@@ -49,14 +92,14 @@ int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor){
         exit (1);
     }
     node_position pos;
-    static int key = 0;
+    static int key = 0; //Autoincrement rowid
     page_t* page;
 
     page = pageNew();
     pageSetRowId (page, key);
-    pageSetName (page, bytecode->reg3);
-    pageSetAge (page, (int*)bytecode->reg4);
-    pageSetWeight (page, (float*)bytecode->reg5);
+    pageSetName (page, getReg3(bytecode));
+    pageSetAge (page, (int*)getReg4(bytecode));
+    pageSetWeight (page, (float*)getReg5(bytecode));
 
     #ifdef INPUT_ECO
     printf("INSERT INTO %s ( \n\
@@ -67,7 +110,7 @@ int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor){
                 \t %s, \n\
                 \t %d, \n\
                 \t %f, \n\
-            );\n",
+            );\n\n",
             btree_get_name(Tcursor),
             pageGetName (page),
             pageGetAge (page),
@@ -88,58 +131,75 @@ int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor){
 }
 
 int SQL_select(sql_bytecode_t* bytecode, BTree* Tcursor){
-	node_position pos;
+    if (Tcursor == NULL){
+        printf ("SQL_insert: invalid table\n");
+        exit (1);
+    }
 
-    pos = btree_find(Tcursor, *(int*)bytecode->reg4);
-    page_t* value;
+	node_position pos;
+    page_t* page;
+
+    #ifdef INPUT_ECO
+    printf("SELECT * FROM %s \n\
+            WHERE row_id=0;\n\n",
+            btree_get_name(Tcursor)
+    );
+    #endif // INPUT_ECO
+
+    pos = btree_find(Tcursor, *(int*)getReg4(bytecode));
+    if (pos.node == NULL){
+        printf ("Returned 0 rows\n\n");
+        return 0;
+    }
     page = node_get_value(pos);
-    //TODO: verificar se a linha existe
     printf(" returned row %d: %s, %d, %f\n",
             pageGetRowId(page),
             pageGetName(page),
             pageGetAge(page),
             pageGetWeight(page)
     );
+    bytecode_free(bytecode);
 	return 0;
 }
 
+int SQL_delete(sql_bytecode_t* bytecode, BTree* Tcursor){
+    if (Tcursor == NULL){
+        printf ("SQL_insert: invalid table\n");
+        exit (1);
+    }
 
+    node_position pos;
 
-int main() {
-	char input_buffer [MAX_INPUT];
-    sql_bytecode_t* bytecode;
-    BTree *Tcursor; // será utilizado na aplicação inteira para armazenar o DB
-
-
-    printf("BenitezSQL Command Line Interface\n");
-	printf("---------------------------------\n\n");
-
-    /* BenitezSQL Virtual Machine */
-	while (1) {
-	    //scanf("%d%*c", &opt);
-	    fgets (input_buffer, MAX_INPUT, stdin);
-	    bytecode = SQL_processor(input_buffer);
-		switch (bytecode->op) {
-		case CREATE:
-			SQL_create(bytecode, &Tcursor);
-			break;
-		case INSERT:
-			SQL_insert(bytecode, Tcursor);
-			break;
-		case SELECT:
-            SQL_select(bytecode, Tcursor);
-            break;
-		case DELETE:
-		case DROP:
-            printf("Exiting BenitezSQL\n\n");
-            btree_delete_h(Tcursor);
-            bytecode_free(bytecode);
-            exit(EXIT_SUCCESS);
-            break;
-		}
-	}
-
-
-
-	return 0;
+    #ifdef INPUT_ECO
+    printf("DELETE * FROM %s;\n\
+            WHERE row_id=%d\n",
+            btree_get_name(Tcursor),
+            *(int*)getReg4(bytecode)
+    );
+    #endif // INPUT_ECO
+    pos = btree_remove(Tcursor, *(int*)getReg4(bytecode));
+    if (pos.node == NULL) {
+        printf("0 row removed\n\n");
+    }
+    else {
+        printf("1 row removed\n\n");
+    }
+    bytecode_free(bytecode);
+    return 0;
 }
+
+int SQL_drop (sql_bytecode_t* bytecode, BTree* Tcursor){
+    if (Tcursor == NULL){
+        printf ("SQL_insert: invalid table\n");
+        exit (1);
+    }
+
+    #ifdef INPUT_ECO
+    printf("DROP TABLE %s;\n\n", btree_get_name(Tcursor));
+    #endif // INPUT_ECO
+
+    btree_delete_h(Tcursor);
+    bytecode_free(bytecode);
+    return 0;
+}
+

@@ -1,5 +1,5 @@
 
-# About B trees
+# Introduction
 * keys are kept in sequential ordering
 * the tree holds a hierarchical indexing
 * ensures balance
@@ -15,10 +15,20 @@
 
 ### relation with the hardware
 * é mais rápido acessar dados (da memória secundária) quando eles estão proximos (have good locality) 
+
 * B-trees solve this problem by grouping what would be many nodes together into a single giant node. That improve the locality and avoid the malloc overhead. That take advantage of the block structure of memory devices
+
 * Generally, a B-Tree node size is kept equal to the disk block size
 
+### B+trees
+
+* stores all data in the leaves of the tree.
+* Used to store the data in a database
+* Permite agrupar todo o roteamento de memória do bano de dados em poucos blocos de memória
+
 # How it works
+
+### Conceptualization
 
 * The keys are in increasing order. Subtrees are between two keys are between the range of those two
 
@@ -32,11 +42,15 @@
 
 * k = number of keys of the node 
 
+* The root of the B-tree is always in main memory, so that we never need to
+	perform a disk-read on the root
+
+* A altura só aumenta quando o root split 
+
 * **minimum degree (t)**
 
-  * minimum number of childs 
-  * must have at least t -1 keys
-  * Internal nodes have at  least t childs 
+  * minimum number of childs (Internal nodes have at least t childs)
+  * min number of keys: t -1
   * max number of keys: 2t-1
   * max number of childs (also called *max degree*): 2t
 
@@ -51,20 +65,59 @@
 
   * B-trees are always completely balanced, with each leaf the same distance from the root. 
 
-  * every n-node B-tree has height O(lg n)
+  * every n-node has height O(lg n)
 
     ![1542572439418](1542572439418.png)
 
+
+### Creation
+* Just allocate and initialize 
+
+* $O(1)$
+
+	![1544134111275](images/1544134111275.png)
+### Search
+
+* B-T REE -S EARCH is a straightforward generalization of the T REE -SEARCH pro-
+   cedure defined for binary search trees
+
+* We’ll need $O(log_t n)$ disk access until find the node 
+
+* **Algorithm**
+
+   * Receive a node X and a key K to be searched
+   * Do a linear search to reach the expected position of the key K
+   * If we find it there, return it
+   * If it’s a leaf (non K), so K isn’t in the tree
+   * if it is not a leaf (but non K too), so search again in that subtree
+
+   ![1544133893372](images/1544133893372.png)
+
 ### Insertion
 
+* Just go to the right leaf and insert it! 
+
+* If the leaf if full
+
+* split around its median key 
+
+* The median key moves up into y’s parent
+
+* If the parent if full, split again and again
+
+* In the algorithm we already split the full nodes while going down (because we cant go up the tree)
+
+* The Cormen algorithm use a main function B-tree-insert(), witch calls a recursive function B-tree-insert-non-full (). When necessary, B-tree-split-child ()
+
+* Illustration for a tree with t=3
+
+	![1544135547902](images/1544135547902.png)
+
 ### Deletition
+
 it's complicated to delete a key from an internal node; the solution is to delete a key from a nearby leaf instead
 
-# B+trees
-
-* stores all data in the leaves of the tree.
-* Used to store the data in a database
-* ?permite agrupar todo o roteamento de memória do bano de dados em poucos blocos de memória/
+If the leaf is “empty” (less than the minumum degree), merge 
 
 
 

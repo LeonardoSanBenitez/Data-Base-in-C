@@ -1,10 +1,10 @@
-
+#include "pager.h"
 struct Page{
     int row_id;
     char name [10];
     int age;
     float weight;
-}
+};
 
 page_t* pageNew (){
     page_t* page;
@@ -41,4 +41,8 @@ int pageGetAge (page_t* page){
 
 float pageGetWeight (page_t* page){
     return page->weight;
+}
+
+void pageFree (page_t* page){
+    free (page);
 }

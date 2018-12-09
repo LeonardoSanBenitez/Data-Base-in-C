@@ -1,6 +1,11 @@
 #ifndef PAGER
 #define PAGER
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+
 typedef struct Page page_t;
 
 page_t* pageNew ();
@@ -12,6 +17,7 @@ int pageGetRowId (page_t* page);
 char* pageGetName (page_t* page);
 int pageGetAge (page_t* page);
 float pageGetWeight (page_t* page);
+void pageFree (page_t* page);
 
 //TODO: free page
 

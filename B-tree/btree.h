@@ -13,8 +13,6 @@
 #include "util.h"
 #include "btree_util.h"
 
-//#define DEBUG
-
 
 /*
    B-Tree
@@ -26,7 +24,6 @@ typedef struct btree_t {
 	int order;
 	node_t *root;
 } BTree;
-//TODO: mudar o nome dessa classe
 
 char* btree_get_name (BTree* bt);
 /*

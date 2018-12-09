@@ -3,7 +3,6 @@
 	DC - UFSCar - São Carlos - 2015
  */
 #include "btree_util.h"
-#define DEBUG
 
 node_position _node_position_new(node_t *node, int index) {
 	// Apenas retorna um node_position com os valores informados
@@ -31,6 +30,9 @@ pair_t* _pair_copy(pair_t *p) {
 	return new;
 }
 
+int pair_get_key (pair_t* p){
+    return p->key;
+}
 void* pair_get_value (pair_t* p){
     return p->value;
 }

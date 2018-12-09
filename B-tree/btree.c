@@ -4,7 +4,8 @@
  */
 #include "btree.h"
 #include "btree_util.h"
-#define DEBUG
+#include "pager.h" //need to free application memory
+
 BTree* btree_new(char* name, int order) {
 	BTree* bt = malloc(sizeof(BTree));
 	assert(bt != NULL);
@@ -482,15 +483,13 @@ void btree_delete_s(BTree *bt) {
 	#ifdef DEBUG
 	printf("deleting b-tree\n");
 	#endif
-
-	// TODO make this efficient - through DFS?
 	while (bt->root->n_keys > 0) {
 	    #ifdef DEBUG
 		printf("\n\n");
 	    #endif
-		btree_remove(bt, bt->root->keys[0]->key);
+	    pageFree (pair_get_value(bt->root->keys[0])); //Função especifica da aplicação
+		btree_remove(bt, pair_get_key(bt->root->keys[0]));
 	}
-
 	_node_delete(bt->root);
 }
 
@@ -502,28 +501,4 @@ void btree_delete_h(BTree *bt) {
 	free(bt);
 }
 
-/*******************************/
-// Useful functions
-void _btree_dfs_node(node_t *node, int level) {
-	assert(node != NULL);
-
-	int i;
-	if (!node->is_leaf) {
-		for (i = 0; i < node->n_keys+1; ++i) {
-			_btree_dfs_node(node->children[i], level+1);
-		}
-	}
-
-	printf("\tAlgum nó no nível %d possui %d chave(s): ", level, node->n_keys);
-	for (i = 0; i < node->n_keys; ++i) {
-		if (i != 0) printf(" ");
-		printf("%d", node->keys[i]->key);
-	}
-	printf("\n");
-}
-
-void btree_dfs(BTree *bt) {
-	assert(bt != NULL);
-	_btree_dfs_node(bt->root, 0);
-}
 

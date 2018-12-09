@@ -7,7 +7,7 @@
 #include <string.h>
 
 enum sql_bytecode_op {
-    CREATE, SELECT, INSERT, DROP, DELETE
+    CREATE, SELECT, INSERT, DROP, DELETE, ERROR
 } sql_bytecode_op;
 
 struct Sql_bytecode {
@@ -46,6 +46,9 @@ ii
 ss
     Comando para debug
     Seleciona a primeira linha (id=0)
+del
+    Comando para debug
+    delete a primeira linha (id=0)
 dd
     Comando para debug
     deleta a tabela a saí do programa
@@ -59,6 +62,10 @@ TODO: change reg3 to reg2
 *****/
 sql_bytecode_t* SQL_processor(char* input);
 sql_bytecode_t* bytecode_new ();
+void* getReg2 (sql_bytecode_t* bytecode);
+void* getReg3 (sql_bytecode_t* bytecode);
+void* getReg4 (sql_bytecode_t* bytecode);
+void* getReg5 (sql_bytecode_t* bytecode);
 int bytecode_free (sql_bytecode_t* bytecode);
 
 #endif
