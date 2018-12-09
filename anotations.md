@@ -1,5 +1,5 @@
+# Btrees
 
-# Introduction
 * keys are kept in sequential ordering
 * the tree holds a hierarchical indexing
 * ensures balance

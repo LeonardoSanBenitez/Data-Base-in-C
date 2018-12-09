@@ -13,6 +13,11 @@ busca se da unicamente pelo id serial
 #include "btree.h"
 #include "sql_processor.h"
 #include "pager.h"
+/* todos
+comparar a implementação dos mlk com o pseudocodigo (botar lado a lado)
+explicar as dificuldades ao pegar um código e tentar entender a partir do algoritmo (ter que liberar
+memória, ponteiro pra ponteiro, etc)
+*/
 
 
 #define MSG_LEN 100
