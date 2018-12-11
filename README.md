@@ -4,9 +4,7 @@ This project implements a little database in C, following the architecture of th
 
 This is a project for the lecture of Computers Programming II, of the Electronic Engineering course of the Federal Institute of Education, Science and Technology of Santa Catarina (IFSC), Brazil. 
 
-To test the code, run the makefile of the Btree
-
-
+To test the code, run the makefile in the folder “main project”.
 
 # Btrees
 
@@ -116,9 +114,10 @@ To test the code, run the makefile of the Btree
 
 ### Deletition
 
-it's complicated to delete a key from an internal node; the solution is to delete a key from a nearby leaf instead
+* it's complicated to delete a key from an internal node; the solution is to delete a key from a nearby leaf instead
 
-If the leaf is “empty” (less than the minumum degree), merge
+* If the leaf is “empty” (less than the minumum degree), merge
+* já vai juntando na descida 
 
 ### B+trees
 * stores all data in the leaves of the tree.
@@ -177,7 +176,7 @@ If the leaf is “empty” (less than the minumum degree), merge
 * O tamanho da page varia de 512 a 65536 bytes (default é 4096 bytes).
 * **Overflow pages**
 	* When the date is to large to the page, they are stored in overflow pages (apart from the Btree)
-	* The overflow pages are organized in a linked list
+	* ==The overflow pages are organized in a linked list==
 
 ### Btree
 

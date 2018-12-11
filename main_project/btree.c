@@ -65,32 +65,25 @@ node_position btree_insert(BTree* bt, int key, void *value) {
         printf ("btree_insert: tree invalid");
         exit (EXIT_FAILURE);
 	}
-
 	#ifdef DEBUG
 	printf("inserting key %d\n", key);
 	#endif
-
 	node_t *root = bt->root;
 	// Esse pair será enviado durante as chamadas recursivas de inserção,
 	// e é o que realmente será inserido na B-Tree
-
 	pair_t *pair = _pair_new(key, value);
 	if (root->n_keys == 2*bt->order -1) {
 		// Caso a raiz da B-Tree já esteja cheia,
 		// devemos executar o procedimento de split
 		// e deixá-la com apenas uma chave.
 		// Esse é o único caso em que a altura da B-Tree aumenta
-
 		#ifdef DEBUG
 		printf("root full - spliting up\n");
 		#endif
-
 		node_t *new_root = _node_new(bt->order, FALSE);
 		new_root->children[0] = root;
-
 		_btree_split(new_root, 0, bt->order);
 		bt->root = new_root;
-
 		// Podemos prosseguir com a inserção
 		return _btree_insert_nonfull(new_root, pair, bt->order);
 	}
@@ -99,7 +92,6 @@ node_position btree_insert(BTree* bt, int key, void *value) {
 		#ifdef DEBUG
 		printf("root not full - calling _btree_insert_nonfull()\n");
 		#endif
-
 		return _btree_insert_nonfull(bt->root, pair, bt->order);
 	}
 }
@@ -216,8 +208,7 @@ node_position _btree_insert_nonfull(node_t * node, pair_t *pair, int order) {
 	}
 }
 
-/***************NÃO PAREI PRA ENTENDER ***/
-node_position btree_remove(BTree* bt, int key) {
+node_position   btree_remove(BTree* bt, int key) {
 	// Para mais informações, consulte a documentação,
 	// em especial o pseudo-código B-Tree-Remove
 

@@ -9,6 +9,7 @@ busca se da unicamente pelo id serial
 //#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "btree.h"
 #include "sql_processor.h"
@@ -23,7 +24,17 @@ memória, ponteiro pra ponteiro, etc)
 #define MSG_LEN 100
 #define MAX_INPUT 128
 #define MIN_DEGREE 2
+#define TEST_N 10000
+#define TEST_REPETITIONS 1000
+/*
+10k:13us
+100k:12
+1M:13
+*/
+
 #define INPUT_ECO
+#define TIME_TEST
+
 
 int SQL_create (sql_bytecode_t* bytecode, BTree** Tcursor);
 int SQL_insert (sql_bytecode_t* bytecode, BTree* Tcursor);
@@ -34,12 +45,41 @@ int SQL_drop (sql_bytecode_t* bytecode, BTree* Tcursor);
 int main() {
 	char input_buffer [MAX_INPUT];
     sql_bytecode_t* bytecode;
+    int i;
     BTree *Tcursor; // será utilizado na aplicação inteira para armazenar o DB
+
+    clock_t end, start;
+    srand (time(NULL));
 
     printf("BenitezSQL Command Line Interface\n");
 	printf("---------------------------------\n\n");
 
     /* BenitezSQL Virtual Machine */
+    #ifdef TIME_TEST
+    sprintf(input_buffer, "CREATE testT");
+    bytecode = SQL_processor(input_buffer);
+    SQL_create(bytecode, &Tcursor);
+
+    for (i=0; i<=TEST_N; i++){
+        sprintf(input_buffer, "INSERT benitez, 21, 60.5");
+        bytecode = SQL_processor(input_buffer);
+        SQL_insert(bytecode, Tcursor);
+    }
+
+    start = clock();
+    for (i=0; i < TEST_REPETITIONS; i++){
+        sprintf (input_buffer, "SELECT %d", rand()%(TEST_N));
+        bytecode = SQL_processor(input_buffer);
+        SQL_select(bytecode, Tcursor);
+    }
+    end = clock();
+
+    printf ("--------------------------------\n\
+            Analysis of the algorithm \n\
+            Time: %f \n\n",
+            (double)(end -  start)/(TEST_REPETITIONS*CLOCKS_PER_SEC));
+    return 0;
+    #else
 	while (1) {
 	    printf("SQL> ");
 	    fgets (input_buffer, MAX_INPUT, stdin);
@@ -67,6 +107,8 @@ int main() {
 
 		}
 	}
+    #endif // TIME_TEST
+
 }
 
 
@@ -146,8 +188,9 @@ int SQL_select(sql_bytecode_t* bytecode, BTree* Tcursor){
 
     #ifdef INPUT_ECO
     printf("SELECT * FROM %s \n\
-            WHERE row_id=0;\n\n",
-            btree_get_name(Tcursor)
+            WHERE row_id=%d;\n\n",
+            btree_get_name(Tcursor),
+            *(int*)getReg4(bytecode)
     );
     #endif // INPUT_ECO
 
@@ -202,7 +245,6 @@ int SQL_drop (sql_bytecode_t* bytecode, BTree* Tcursor){
     #ifdef INPUT_ECO
     printf("DROP TABLE %s;\n\n", btree_get_name(Tcursor));
     #endif // INPUT_ECO
-
     btree_delete_h(Tcursor);
     bytecode_free(bytecode);
     return 0;
